@@ -1,26 +1,152 @@
 @import "tailwindcss";
-
+@custom-variant dark (&:where(.dark, .dark *));
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fcfcf9;
+  --foreground: #172b25;
+  --card: #fff;
+  --card-foreground: #172b25;
+  --primary: #087f5b;
+  --primary-foreground: #fff;
+  --muted: #f2f5f0;
+  --muted-foreground: #64756c;
+  --border: #e7ebe5;
+  --accent: #e9f5ed;
 }
-
+.dark {
+  --background: #0c1518;
+  --foreground: #e9f0ed;
+  --card: #121e22;
+  --card-foreground: #e9f0ed;
+  --primary: #47d7a0;
+  --primary-foreground: #082c20;
+  --muted: #19272b;
+  --muted-foreground: #9cafa8;
+  --border: #253438;
+  --accent: #15342b;
+}
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --font-sans: var(--font-geist-sans), var(--font-bengali), sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
 }
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--border);
 }
-
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 100px;
+}
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), var(--font-bengali), sans-serif;
+}
+button,
+a,
+select,
+summary {
+  -webkit-tap-highlight-color: transparent;
+}
+button:not(:disabled),
+summary {
+  cursor: pointer;
+}
+::selection {
+  background: #b9ead2;
+  color: #123d2c;
+}
+input[type="number"]::-webkit-inner-spin-button {
+  appearance: none;
+}
+.page-width {
+  width: min(1200px, calc(100% - 48px));
+  margin-inline: auto;
+}
+.hero-grid {
+  background-image:
+    linear-gradient(to right, var(--border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+  background-size: 54px 54px;
+  mask-image: radial-gradient(ellipse, black, transparent 70%);
+  opacity: 0.45;
+}
+.text-balance {
+  text-wrap: balance;
+}
+.eyebrow {
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.select-field {
+  width: 100%;
+  height: 44px;
+  border: 1px solid var(--border);
+  background: var(--background);
+  border-radius: 12px;
+  padding: 0 12px;
+  font-size: 14px;
+  outline: none;
+}
+.select-field:focus-visible {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 15%, transparent);
+}
+.table-wrap {
+  overflow-x: auto;
+}
+.data-table {
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+  white-space: nowrap;
+  font-size: 13px;
+}
+.data-table th {
+  padding: 14px 24px;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  font-weight: 550;
+  background: var(--muted);
+}
+.data-table td {
+  padding: 18px 24px;
+  border-top: 1px solid var(--border);
+}
+.data-table tbody tr:hover {
+  background: color-mix(in srgb, var(--muted) 60%, transparent);
+}
+.field-error {
+  font-size: 12px;
+  color: #dc2626;
+  margin-top: 6px;
+}
+@media (max-width: 640px) {
+  .page-width {
+    width: calc(100% - 32px);
+  }
+  .data-table td,
+  .data-table th {
+    padding-inline: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

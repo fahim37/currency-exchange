@@ -1,0 +1,190 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "mongodb"
+  url = env("DATABASE_URL")
+}
+model User {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  name String
+  email String @unique
+  emailVerified Boolean @default(false)
+  image String?
+  role String @default("USER")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sessions Session[]
+  accounts Account[]
+  quotes Quote[]
+  orders Order[]
+  savedAccounts SavedAccount[]
+}
+model Session {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  token String @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId String @db.ObjectId
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+}
+model Account {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  accountId String
+  providerId String
+  userId String @db.ObjectId
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken String?
+  refreshToken String?
+  idToken String?
+  accessTokenExpiresAt DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope String?
+  password String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([userId])
+}
+model Verification {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  identifier String
+  value String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([identifier])
+}
+model RateLimit {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  key String @unique
+  count Int
+  lastRequest Float
+}
+model RequestLimit {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  key String @unique
+  count Int @default(0)
+  expiresAt DateTime
+  @@index([expiresAt])
+}
+model PaymentMethod {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  slug String @unique
+  name String
+  currency String
+  kind String
+  network String?
+  color String @default("#087f5b")
+  decimals Int @default(2)
+  reserve String @default("0")
+  version Int @default(0)
+  enabled Boolean @default(false)
+  receivingAccount String @default("")
+  instructions String @default("")
+  instructionsEn String @default("")
+  updatedAt DateTime @updatedAt
+}
+model ExchangePair {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  fromId String @db.ObjectId
+  toId String @db.ObjectId
+  rate String
+  feePercent String @default("0")
+  min String
+  max String
+  enabled Boolean @default(false)
+  updatedAt DateTime @updatedAt
+  @@unique([fromId, toId])
+}
+model Quote {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+  user User @relation(fields: [userId], references: [id])
+  requestKey String @unique
+  fromId String @db.ObjectId
+  toId String @db.ObjectId
+  fromName String
+  toName String
+  fromCurrency String
+  toCurrency String
+  toNetwork String?
+  sendAmount String
+  receiveAmount String
+  fee String
+  rate String
+  destination String
+  receivingAccount String
+  instructions String
+  instructionsEn String
+  state String @default("HELD")
+  reserved Boolean @default(true)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  order Order?
+  @@index([state, expiresAt])
+  @@index([userId, createdAt])
+}
+model Order {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  number String @unique
+  userId String @db.ObjectId
+  user User @relation(fields: [userId], references: [id])
+  quoteId String @unique @db.ObjectId
+  quote Quote @relation(fields: [quoteId], references: [id])
+  status String @default("PENDING")
+  fromName String
+  toName String
+  fromCurrency String
+  toCurrency String
+  sendAmount String
+  receiveAmount String
+  fee String
+  rate String
+  destination String
+  senderAccount String
+  paymentTrxId String @unique
+  payoutReference String?
+  cancellationReason String?
+  refundStatus String @default("NONE")
+  refundReference String?
+  reviewRequired Boolean @default(false)
+  paymentVerified Boolean @default(false)
+  processedBy String?
+  version Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+}
+model SavedAccount {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  methodId String @db.ObjectId
+  label String
+  address String
+  createdAt DateTime @default(now())
+  @@index([userId])
+}
+model SiteSettings {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  key String @unique @default("main")
+  online Boolean @default(false)
+  acceptingOrders Boolean @default(false)
+  notice String @default("")
+  noticeEn String @default("")
+  serviceHours String @default("10:00 AM – 11:00 PM · Asia/Dhaka")
+}
+model AuditEvent {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  actorId String @db.ObjectId
+  action String
+  targetId String
+  details Json
+  createdAt DateTime @default(now())
+  @@index([createdAt])
+}
